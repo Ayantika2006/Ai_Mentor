@@ -498,41 +498,41 @@ const CoursesPage = () => {
     };
 
     /* ================= REPORT ================= */
-    const handleReportSubmit = async () => {
-        try {
-            setReportLoading(true);
-            const res = await fetch("http://localhost:5000/api/course-reports", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${user?.token}`,
-                },
-                body: JSON.stringify({
-                    reportType,
-                    subType,
-                    description: reportText,
-                    courseName: selectedCourse || "General",
-                }),
-            });
+   const handleReportSubmit = async () => {
+    try {
+        setReportLoading(true);
+        const res = await fetch(`${API_BASE_URL}/api/course-reports`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${user?.token}`,
+            },
+            body: JSON.stringify({
+                reportType,
+                subType,
+                description: reportText,
+                courseName: selectedCourse || "General",
+            }),
+        });
 
-            const data = await res.json();
+        const data = await res.json();
 
-            if (!res.ok) {
-                throw new Error(data.message || "Failed to submit report");
-            }
-
-            setShowReportModal(false);
-            setReportText("");
-            setReportType("");
-            setSubType("");
-            setSelectedCourse("");
-
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setReportLoading(false);
+        if (!res.ok) {
+            throw new Error(data.message || "Failed to submit report");
         }
-    };
+
+        setShowReportModal(false);
+        setReportText("");
+        setReportType("");
+        setSubType("");
+        setSelectedCourse("");
+
+    } catch (err) {
+        console.error(err);
+    } finally {
+        setReportLoading(false);
+    }
+};
 
     if (!user) {
         return (
