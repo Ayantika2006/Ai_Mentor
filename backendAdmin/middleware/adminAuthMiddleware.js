@@ -26,6 +26,13 @@ export const protectAdmin = async (req, res, next) => {
       return res.status(403).json({ message: "Your account has been suspended" });
     }
 
+    if (req.admin.passwordChangedAt) {
+      const passwordChangedAt = Math.floor(req.admin.passwordChangedAt.getTime() / 1000);
+      if (passwordChangedAt > decoded.iat) {
+        return res.status(401).json({ message: "Token revoked, please log in again" });
+      }
+    }
+
     next();
   } catch {
     res.status(401).json({ message: "Not authorized to access this route" });
