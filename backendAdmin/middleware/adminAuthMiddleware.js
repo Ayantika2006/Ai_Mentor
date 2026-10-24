@@ -15,7 +15,8 @@ export const protectAdmin = async (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const jwtSecret = process.env.JWT_SECRET || "fallback_secret";
+    const decoded = jwt.verify(token, jwtSecret);
     req.admin = await Admin.findByPk(decoded.id);
 
     if (!req.admin) {

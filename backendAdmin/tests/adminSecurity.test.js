@@ -3,11 +3,13 @@ import assert from "node:assert/strict";
 import jwt from "jsonwebtoken";
 import { protectAdmin } from "../middleware/adminAuthMiddleware.js";
 import { adminLoginLimiter } from "../middleware/rateLimiter.js";
-import Admin from "../models/Admin.js";
+import { Admin } from "../models/index.js";
+
+process.env.JWT_SECRET = process.env.JWT_SECRET || "fallback_secret";
 
 test("adminAuthMiddleware revokes tokens issued before passwordChangedAt", async () => {
   const adminId = 999;
-  const token = jwt.sign({ id: adminId }, process.env.JWT_SECRET || "fallback_secret", {
+  const token = jwt.sign({ id: adminId }, process.env.JWT_SECRET, {
     expiresIn: "1h",
   });
   const decoded = jwt.decode(token);
