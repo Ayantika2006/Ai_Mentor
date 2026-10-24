@@ -275,7 +275,9 @@ router.get("/transcript/:filename", protect, async (req, res) => {
     }
 
     if (cachedVideo.transcript) {
-      console.log("🎯 Serving cached transcript for:", filename);
+      if (process.env.NODE_ENV !== "test") {
+        console.log("[AI] Serving cached transcript for:", filename);
+      }
       return res.json({ content: cachedVideo.transcript });
     }
 
@@ -291,11 +293,15 @@ router.get("/transcript/:filename", protect, async (req, res) => {
     // Save to Cache
     cachedVideo.transcript = data.content;
     await cachedVideo.save();
-    console.log("💾 Transcript cached for:", filename);
+    if (process.env.NODE_ENV !== "test") {
+      console.log("[AI] Transcript cached for:", filename);
+    }
 
     res.json(data);
   } catch (error) {
-    console.error("❌ Transcript Proxy Error:", error.message);
+    if (process.env.NODE_ENV !== "test") {
+      console.error("[AI] Transcript Proxy Error:", error.message);
+    }
     res.status(500).json({ error: "Failed to load transcript" });
   }
 });

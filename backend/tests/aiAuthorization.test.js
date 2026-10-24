@@ -45,8 +45,15 @@ const originals = {
 
 let server;
 let baseUrl;
+let originalLog;
+let originalErr;
 
 before(async () => {
+  originalLog = console.log;
+  originalErr = console.error;
+  console.log = () => {};
+  console.error = () => {};
+
   AIVideo.findOne = async ({ where }) => {
     if (where.transcriptName) {
       return VIDEOS.find((v) => v.transcriptName === where.transcriptName) || null;
@@ -68,19 +75,25 @@ before(async () => {
 });
 
 after(async () => {
+  console.log = originalLog;
+  console.error = originalErr;
   AIVideo.findOne = originals.aivideoFindOne;
   User.findByPk = originals.userFindByPk;
   Course.findByPk = originals.courseFindByPk;
   Module.findOne = originals.moduleFindOne;
   Lesson.findByPk = originals.lessonFindByPk;
+  server.closeAllConnections?.();
   await new Promise((resolve) => server.close(resolve));
 });
 
 const req = (path, userId) =>
   fetch(`${baseUrl}${path}`, {
-    headers: userId
-      ? { Authorization: `Bearer ${jwt.sign({ id: userId }, process.env.JWT_SECRET)}` }
-      : {},
+    headers: {
+      Connection: "close",
+      ...(userId
+        ? { Authorization: `Bearer ${jwt.sign({ id: userId }, process.env.JWT_SECRET)}` }
+        : {}),
+    },
   });
 
 test("transcript endpoint requires authentication", async () => {
